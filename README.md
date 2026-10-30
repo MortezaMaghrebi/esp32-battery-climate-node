@@ -70,6 +70,8 @@ idf.py -p COM5 flash monitor
 پوشه `climate_link_android` را در Android Studio باز کنید و Gradle Sync انجام دهید.
 نسخه‌های AGP، Gradle و SDK اولیه پروژه حفظ شده‌اند؛ minSdk برابر ۲۴ است.
 رابط بومی Material 3 شامل سه صفحه نمای کلی، دستگاه‌ها و تنظیمات است و از فونت فارسی وزیرمتن، آیکن‌های برداری و چیدمان راست‌به‌چپ استفاده می‌کند. مجوز فونت در پوشه licenses و داخل APK قرار دارد.
+بهبودهای UI/UX Pro Max شامل دسترسی مستقیم به اتصال، خطاهای کنار ورودی، گزینه‌های پیشرفته جمع‌شونده، جلوگیری از شروع چرخه با تغییرات ذخیره‌نشده، پشتیبانی از حالت تیره سیستم و انطباق با فونت بزرگ هستند.
+[تصویر روشن](docs/screenshots/android-overview.png) · [تصویر تیره](docs/screenshots/android-overview-dark.png) · [سیستم طراحی](design-system/climatelink/MASTER.md)
 
 ```powershell
 cd D:\Github\esp32-battery-climate-node\climate_link_android

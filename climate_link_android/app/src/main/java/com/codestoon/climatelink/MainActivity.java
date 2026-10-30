@@ -1,6 +1,9 @@
 package com.codestoon.climatelink;
 
 import android.Manifest;
+import android.animation.ValueAnimator;
+import android.provider.Settings;
+import android.graphics.Rect;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
 import android.content.pm.PackageManager;
@@ -24,6 +27,7 @@ import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import org.json.JSONObject;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
@@ -41,7 +45,7 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
     private BottomNavigationView navigation;
     private final Map<String,DeviceRow> discovered=new LinkedHashMap<>();
     private boolean loading,configured,connected,scanActive,connecting,hasSample,updatingPreset;
-    private String selectedAddress="";
+    private String selectedAddress="",savedFingerprint="";
     private final ActivityResultLauncher<String[]> permissions=registerForActivityResult(
         new ActivityResultContracts.RequestMultiplePermissions(),result->{
             boolean granted=true; for(String permission:requiredPermissions())
@@ -52,6 +56,15 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state); EdgeToEdge.enable(this); setContentView(R.layout.activity_main);
         View root=findViewById(R.id.main);
+        boolean landscape=getResources().getConfiguration().orientation==android.content.res.Configuration.ORIENTATION_LANDSCAPE;
+        if(landscape){findViewById(R.id.overview_intro).setVisibility(View.GONE);findViewById(R.id.brand_tagline).setVisibility(View.GONE);}
+        if(getResources().getConfiguration().fontScale>1.3f){
+            View badge=findViewById(R.id.connection_badge);((ViewGroup)badge.getParent()).removeView(badge);
+            LinearLayout.LayoutParams position=new LinearLayout.LayoutParams(-2,-2);
+            int gutter=getResources().getDimensionPixelSize(R.dimen.page_gutter);
+            position.setMarginStart(gutter);position.setMarginEnd(gutter);position.bottomMargin=dp(8);
+            ((LinearLayout)root).addView(badge,1,position);findViewById(R.id.brand_tagline).setVisibility(View.GONE);
+        }
         ViewCompat.setOnApplyWindowInsetsListener(root,(v,insets)->{
             Insets bars=insets.getInsets(WindowInsetsCompat.Type.systemBars());
             Insets ime=insets.getInsets(WindowInsetsCompat.Type.ime());
@@ -73,15 +86,22 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
         navigation.setOnItemSelectedListener(item->{
             int page=item.getItemId()==R.id.nav_devices?1:item.getItemId()==R.id.nav_settings?2:0;
             if(pages.getDisplayedChild()!=page) {
+                View oldPage=pages.getCurrentView();oldPage.animate().cancel();oldPage.setAlpha(1f);
                 pages.setDisplayedChild(page);
-                View child=pages.getCurrentView();child.setAlpha(.35f);child.animate().alpha(1f).setDuration(160).start();
+                View child=pages.getCurrentView();child.animate().cancel();child.setAlpha(1f);
+                if(motionAllowed()){child.setAlpha(.35f);child.animate().alpha(1f).setDuration(160).start();}
             }
             return true;
         });
-        goDevices.setOnClickListener(v->navigation.setSelectedItemId(R.id.nav_devices));
+        goDevices.setOnClickListener(v->navigation.setSelectedItemId(connected?R.id.nav_settings:R.id.nav_devices));
         scanButton.setOnClickListener(v->{if(scanActive)ble.stopScan();else ensureScan();});
         disconnectButton.setOnClickListener(v->ble.disconnect());
-        refresh.setOnClickListener(v->loadDevice());save.setOnClickListener(v->saveConfig());
+        refresh.setOnClickListener(v->{
+            if(isDirty())new androidx.appcompat.app.AlertDialog.Builder(this).setTitle(R.string.refresh_title)
+                .setMessage(R.string.refresh_discard).setPositiveButton(R.string.refresh,(d,w)->loadDevice())
+                .setNegativeButton(R.string.back,null).show();
+            else loadDevice();
+        });save.setOnClickListener(v->saveConfig());
         run.setOnClickListener(v->{
             if(loading)return;
             new androidx.appcompat.app.AlertDialog.Builder(this).setTitle(R.string.run_title)
@@ -111,6 +131,10 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
         getOnBackPressedDispatcher().addCallback(this,new OnBackPressedCallback(true){
             @Override public void handleOnBackPressed(){if(pages.getDisplayedChild()!=0)navigation.setSelectedItemId(R.id.nav_overview);else finish();}
         });
+        setupFormFeedback();
+        ViewCompat.setAccessibilityLiveRegion(connectionBadge,ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE);
+        ViewCompat.setAccessibilityLiveRegion(deviceCount,ViewCompat.ACCESSIBILITY_LIVE_REGION_POLITE);
+        ViewCompat.setAccessibilityHeading(findViewById(R.id.reading_state),true);
         setConnected(false);ble=new BleClient(this,this);
         if(state!=null)navigation.setSelectedItemId(state.getInt("tab",R.id.nav_overview));
     }
@@ -134,8 +158,10 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
         connectionBadge.setBackgroundResource(connected?R.drawable.bg_chip:R.drawable.bg_offline);
         connectionBadge.setTextColor(ContextCompat.getColor(this,connected?R.color.cl_primary:R.color.cl_muted));
         disconnectButton.setVisibility(connected?View.VISIBLE:View.GONE);
-        settingsNotice.setText(connected?R.string.settings_ready:R.string.settings_locked);
-        goDevices.setText(connected?R.string.devices:R.string.connect_device);
+        settingsNotice.setText(!connected?R.string.settings_locked:isDirty()?R.string.unsaved_changes:
+            value(ssid).isEmpty()||value(url).trim().isEmpty()?R.string.complete_settings:R.string.settings_ready);
+        goDevices.setText(connected?R.string.settings:R.string.connect_device);
+        findViewById(R.id.connected_details).setVisibility(connected||hasSample?View.VISIBLE:View.GONE);
         heroTitle.setText(connected?R.string.hero_connected:R.string.hero_title);
         if(!connected)heroCaption.setText(R.string.hero_caption);
         if(hasSample&&!connected)sampleCaption.setText(R.string.stale_sample);
@@ -202,11 +228,14 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
     }
     private void setConnected(boolean connected) {
         this.connected=connected;
-        refresh.setEnabled(connected && !loading); save.setEnabled(connected && configured && !loading); run.setEnabled(connected && configured && !loading); updateConnectionUi();
+        refresh.setEnabled(connected&&!loading);
+        save.setEnabled(connected&&configured&&!loading&&isDirty());
+        run.setEnabled(connected&&configured&&!loading&&!isDirty()&&!value(ssid).isEmpty()&&!value(url).trim().isEmpty());
+        updateConnectionUi();
     }
     @Override public void status(String s) { connection.setText(s);connection.setContentDescription(s); }
     @Override public void error(String s) { loading=false; setConnected(connected); status(s); Snackbar.make(findViewById(R.id.main),s,Snackbar.LENGTH_LONG).setAnchorView(navigation).setTextMaxLines(4).show(); }
-    @Override public void disconnected() { configured=false; loading=false; connecting=false; setConnected(false); }
+    @Override public void disconnected() { configured=false; loading=false; connecting=false; setConnected(false); status(getString(R.string.offline_message)); }
     @SuppressLint("MissingPermission")
     @Override public void found(BluetoothDevice device,int rssi){
         String name=device.getName()==null?getString(R.string.app_name):device.getName();
@@ -234,41 +263,113 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
             findViewById(R.id.telemetry_card).setVisibility(View.VISIBLE);
             boolean simulated=r.optBoolean("simulated",true);
             findViewById(R.id.simulation_badge).setVisibility(simulated?View.VISIBLE:View.GONE);
-            sampleCaption.setText(simulated?R.string.prototype_note:R.string.last_sample);
+            String receivedAt=android.text.format.DateFormat.getTimeFormat(this).format(new Date());
+            sampleCaption.setText(getString(simulated?R.string.sample_simulated_at:R.string.sample_read_at,receivedAt));
         });
         ble.request(command("get_config"),r->{
             ssid.setText(r.optString("ssid")); url.setText(r.optString("server_url"));
             sample.setText(number(r.optInt("sample_s",900))); every.setText(number(r.optInt("upload_every",1)));
             http.setChecked(r.optBoolean("allow_http")); password.setText(""); token.setText("");
+            if(http.isChecked()){
+                findViewById(R.id.server_advanced_content).setVisibility(View.VISIBLE);
+                ViewCompat.setStateDescription(findViewById(R.id.server_advanced_toggle),getString(R.string.expanded));
+            }
             clearPassword.setChecked(false); clearToken.setChecked(false);
-            loading=false; configured=true; setConnected(true); status(getString(R.string.config_loaded));
+            loading=false; configured=true; markSaved(); clearFormErrors(); setConnected(true); status(getString(R.string.config_loaded));
         });
     }
     private static String value(EditText e) { return e.getText().toString(); }
-    private void saveConfig() {
-        try {
-            int seconds=Integer.parseInt(value(sample)), count=Integer.parseInt(value(every));
-            if(seconds<60 || seconds>86400 || count<1 || count>32) throw new IllegalArgumentException(getString(R.string.schedule_error));
-            String network=value(ssid), endpoint=value(url).trim(), pass=value(password), secret=value(token);
-            if(network.isEmpty() || network.getBytes(StandardCharsets.UTF_8).length>32) throw new IllegalArgumentException(getString(R.string.ssid_error));
-            if(!pass.isEmpty() && (pass.getBytes(StandardCharsets.UTF_8).length<8 || pass.getBytes(StandardCharsets.UTF_8).length>63))
-                throw new IllegalArgumentException(getString(R.string.password_error));
-            URI uri=URI.create(endpoint);
-            if(uri.getHost()==null || uri.getUserInfo()!=null || uri.getFragment()!=null ||
-                !("https".equals(uri.getScheme()) || (http.isChecked() && "http".equals(uri.getScheme()))))
-                throw new IllegalArgumentException(getString(R.string.url_error));
-            if(endpoint.getBytes(StandardCharsets.UTF_8).length>192 || secret.getBytes(StandardCharsets.UTF_8).length>128 || secret.contains("\r") || secret.contains("\n"))
-                throw new IllegalArgumentException(getString(R.string.length_error));
-            if(clearPassword.isChecked() && !pass.isEmpty() || clearToken.isChecked() && !secret.isEmpty())
-                throw new IllegalArgumentException(getString(R.string.clear_error));
-            JSONObject request=command("set_config"); request.put("ssid",network); request.put("server_url",endpoint);
-            request.put("sample_s",seconds); request.put("upload_every",count); request.put("allow_http",http.isChecked());
-            if(clearPassword.isChecked()) request.put("password",""); else if(!pass.isEmpty()) request.put("password",pass);
-            if(clearToken.isChecked()) request.put("token",""); else if(!secret.isEmpty()) request.put("token",secret);
-            loading=true; setConnected(true);
-            ble.request(request,r->{loading=false; password.setText(""); token.setText(""); clearPassword.setChecked(false); clearToken.setChecked(false);
-                setConnected(true); status(getString(R.string.config_saved)); Snackbar.make(findViewById(R.id.main),R.string.config_saved,Snackbar.LENGTH_LONG).setAnchorView(navigation).setTextMaxLines(3).show();});
-        } catch(Exception e) { error(e.getMessage()==null?getString(R.string.invalid_form):e.getMessage()); }
+    private void saveConfig(){
+        ConfigValidator.Input input=formInput();
+        LinkedHashMap<String,Integer> errors=ConfigValidator.validate(input);
+        if(!errors.isEmpty()){showFormErrors(errors);return;}
+        clearFormErrors();
+        try{
+            JSONObject request=command("set_config");request.put("ssid",input.ssid);request.put("server_url",input.url);
+            request.put("sample_s",Integer.parseInt(input.sample));request.put("upload_every",Integer.parseInt(input.every));
+            request.put("allow_http",input.allowHttp);
+            if(input.clearPassword)request.put("password","");else if(!input.password.isEmpty())request.put("password",input.password);
+            if(input.clearToken)request.put("token","");else if(!input.token.isEmpty())request.put("token",input.token);
+            loading=true;setConnected(connected);
+            ble.request(request,reply->{
+                password.setText("");token.setText("");clearPassword.setChecked(false);clearToken.setChecked(false);
+                loading=false;markSaved();setConnected(connected);status(getString(R.string.config_saved));
+                Snackbar.make(findViewById(R.id.main),R.string.config_saved,Snackbar.LENGTH_LONG)
+                    .setAnchorView(navigation).setTextMaxLines(3).show();
+            });
+        }catch(Exception e){error(getString(R.string.invalid_form));}
+    }
+    private ConfigValidator.Input formInput(){
+        return new ConfigValidator.Input(value(ssid),value(password),value(url).trim(),value(token),value(sample),value(every),
+            clearPassword.isChecked(),clearToken.isChecked(),http.isChecked());
+    }
+    private String formFingerprint(){
+        return Arrays.asList(value(ssid),value(password),value(url),value(token),value(sample),value(every),
+            String.valueOf(clearPassword.isChecked()),String.valueOf(clearToken.isChecked()),String.valueOf(http.isChecked())).toString();
+    }
+    private void markSaved(){savedFingerprint=formFingerprint();}
+    private boolean isDirty(){return configured&&!savedFingerprint.equals(formFingerprint());}
+    private boolean motionAllowed(){
+        if(Build.VERSION.SDK_INT>=26)return ValueAnimator.areAnimatorsEnabled();
+        return Settings.Global.getFloat(getContentResolver(),Settings.Global.ANIMATOR_DURATION_SCALE,1f)>0;
+    }
+    private void disclosure(int toggleId,int contentId){
+        MaterialButton toggle=findViewById(toggleId);View content=findViewById(contentId);
+        ViewCompat.setStateDescription(toggle,getString(R.string.collapsed));
+        toggle.setOnClickListener(v->{
+            boolean expanded=content.getVisibility()!=View.VISIBLE;content.setVisibility(expanded?View.VISIBLE:View.GONE);
+            ViewCompat.setStateDescription(toggle,getString(expanded?R.string.expanded:R.string.collapsed));
+        });
+    }
+    private TextInputEditText input(String key){
+        switch(key){case "ssid":return ssid;case "password":return password;case "url":return url;
+            case "token":return token;case "sample":return sample;default:return every;}
+    }
+    private TextInputLayout inputLayout(String key){return (TextInputLayout)input(key).getParent().getParent();}
+    private void setupFormFeedback(){
+        disclosure(R.id.wifi_advanced_toggle,R.id.wifi_advanced_content);disclosure(R.id.server_advanced_toggle,R.id.server_advanced_content);
+        for(String key:new String[]{"ssid","password","url","token","sample","every"}){
+            TextInputEditText edit=input(key);
+            edit.addTextChangedListener(new TextWatcher(){
+                public void beforeTextChanged(CharSequence text,int start,int count,int after){}
+                public void onTextChanged(CharSequence text,int start,int before,int count){
+                    if(loading)return;
+                    inputLayout(key).setError(null);findViewById(R.id.form_errors).setVisibility(View.GONE);setConnected(connected);
+                }
+                public void afterTextChanged(Editable text){}
+            });
+            edit.setOnFocusChangeListener((v,focus)->{
+                if(!focus&&!loading){Integer message=ConfigValidator.validate(formInput()).get(key);
+                    inputLayout(key).setError(message==null?null:getString(message));}
+            });
+        }
+        for(CompoundButton toggle:new CompoundButton[]{clearPassword,clearToken,http})
+            toggle.setOnCheckedChangeListener((v,checked)->{if(!loading)setConnected(connected);});
+    }
+    private void clearFormErrors(){
+        for(String key:new String[]{"ssid","password","url","token","sample","every"})inputLayout(key).setError(null);
+        findViewById(R.id.form_errors).setVisibility(View.GONE);
+    }
+    private void focusInput(String key){
+        TextInputEditText edit=input(key);
+        edit.requestFocus();edit.post(()->{
+            Rect bounds=new Rect(0,0,edit.getWidth(),edit.getHeight());edit.requestRectangleOnScreen(bounds,true);
+        });
+    }
+    private void showFormErrors(LinkedHashMap<String,Integer> errors){
+        clearFormErrors();
+        for(Map.Entry<String,Integer> entry:errors.entrySet())inputLayout(entry.getKey()).setError(getString(entry.getValue()));
+        if(errors.size()==1){focusInput(errors.keySet().iterator().next());return;}
+        LinearLayout summary=findViewById(R.id.form_errors);summary.removeAllViews();summary.setVisibility(View.VISIBLE);
+        TextView heading=new TextView(this);heading.setText(R.string.error_summary_title);heading.setTextSize(16);
+        heading.setTextColor(ContextCompat.getColor(this,R.color.cl_error));heading.setFocusableInTouchMode(true);
+        ViewCompat.setAccessibilityHeading(heading,true);summary.addView(heading);
+        for(Map.Entry<String,Integer> entry:errors.entrySet()){
+            MaterialButton link=new MaterialButton(this,null,com.google.android.material.R.attr.materialButtonOutlinedStyle);
+            link.setText(entry.getValue());link.setTextColor(ContextCompat.getColor(this,R.color.cl_error));
+            link.setOnClickListener(v->focusInput(entry.getKey()));summary.addView(link,new LinearLayout.LayoutParams(-1,-2));
+        }
+        heading.post(()->{heading.requestFocus();((ScrollView)findViewById(R.id.settings_page)).smoothScrollTo(0,0);});
     }
     @Override protected void onDestroy() { if(ble!=null) ble.close(); super.onDestroy(); }
 }
