@@ -1,9 +1,51 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.ClimateLink" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Base.Theme.ClimateLink" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/cl_primary</item>
+        <item name="colorOnPrimary">@color/cl_surface</item>
+        <item name="colorPrimaryContainer">@color/cl_mint</item>
+        <item name="colorOnPrimaryContainer">@color/cl_ink</item>
+        <item name="colorSecondary">@color/cl_primary</item>
+        <item name="colorSecondaryContainer">@color/cl_mint</item>
+        <item name="colorSurface">@color/cl_surface</item>
+        <item name="colorOnSurface">@color/cl_ink</item>
+        <item name="colorSurfaceVariant">@color/cl_background</item>
+        <item name="colorOnSurfaceVariant">@color/cl_muted</item>
+        <item name="colorOutline">@color/cl_outline</item>
+        <item name="colorError">@color/cl_error</item>
+        <item name="android:colorBackground">@color/cl_background</item>
+        <item name="android:windowBackground">@color/cl_background</item>
+        <item name="fontFamily">@font/vazirmatn</item>
+        <item name="android:fontFamily">@font/vazirmatn</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:statusBarColor">@color/cl_background</item>
+        <item name="android:navigationBarColor">@color/cl_surface</item>
+        <item name="android:windowActionModeOverlay">true</item>
+        <item name="materialButtonStyle">@style/Widget.ClimateLink.Button</item>
+        <item name="textInputStyle">@style/Widget.ClimateLink.TextInput</item>
+    </style>
+    <style name="Theme.ClimateLink" parent="Base.Theme.ClimateLink"/>
+    <style name="Widget.ClimateLink.Button" parent="Widget.Material3.Button">
+        <item name="cornerRadius">16dp</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">@font/vazirmatn_semibold</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+    <style name="Widget.ClimateLink.TextInput" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">14dp</item>
+        <item name="boxCornerRadiusTopEnd">14dp</item>
+        <item name="boxCornerRadiusBottomStart">14dp</item>
+        <item name="boxCornerRadiusBottomEnd">14dp</item>
+        <item name="boxStrokeColor">@color/cl_primary</item>
+        <item name="hintTextColor">@color/cl_muted</item>
+        <item name="android:textColorHint">@color/cl_muted</item>
+        <item name="boxBackgroundColor">@color/cl_surface</item>
+    </style>
+    <style name="TextAppearance.ClimateLink.Nav" parent="TextAppearance.Material3.LabelMedium">
+        <item name="fontFamily">@font/vazirmatn</item>
     </style>
 
-    <style name="Theme.ClimateLink" parent="Base.Theme.ClimateLink" />
 </resources>

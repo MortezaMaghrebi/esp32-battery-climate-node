@@ -1,0 +1,21 @@
+# Local tools and credentials
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+.venv/
+# ESP-IDF generated state
+climate_link_firmware/build/
+climate_link_firmware/sdkconfig
+climate_link_firmware/sdkconfig.old
+climate_link_firmware/managed_components/
+# Server data
+climate_link_server/data/
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm
+# Android local outputs
+**/local.properties
+**/.gradle/
+**/build/

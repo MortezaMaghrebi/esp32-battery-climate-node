@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="fa" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ClimateLink — پایش محیط</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body><main><header><div><span class="eyebrow">CLIMATE / LINK</span><h1>نبض محیط شما</h1><p>داده‌های گره‌های محیطی، در یک نگاه</p></div><span class="badge">نسخه اولیه ۰٫۱</span></header>
+<section class="access"><label for="token">توکن دسترسی سرور</label><div class="row"><input id="token" type="password" autocomplete="off" placeholder="CLIMATE_API_TOKEN"><button id="connect">اتصال</button><button id="logout" class="secondary">خروج</button></div><small>توکن فقط در حافظه همین صفحه نگهداری می‌شود.</small></section>
+<p id="status" role="status" aria-live="polite">برای مشاهده داده‌ها، توکن را وارد کنید.</p>
+<section class="toolbar"><h2>دستگاه‌ها</h2><button id="refresh" class="secondary" disabled>به‌روزرسانی</button></section>
+<div id="devices" class="devices"><div class="empty">پس از اتصال، دستگاه‌هایی که داده فرستاده‌اند اینجا نمایش داده می‌شوند.</div></div>
+<section id="history" hidden><div class="toolbar"><div><span class="eyebrow">روند اندازه‌گیری</span><h2 id="selected"></h2></div><span id="sample-count"></span></div>
+<div class="charts"><article><h3>دما <span>°C</span></h3><svg id="temperature-chart" viewBox="0 0 600 180" role="img" aria-label="نمودار دما"></svg></article><article><h3>رطوبت <span>%</span></h3><svg id="humidity-chart" viewBox="0 0 600 180" role="img" aria-label="نمودار رطوبت"></svg></article></div>
+<p class="muted">ترتیب نمودارها بر اساس دریافت سرور است. زمان ثبت‌نشده سنسور با زمان دریافت جایگزین نمی‌شود.</p>
+<div class="table-scroll"><table><thead><tr><th>ردیف نمونه</th><th>زمان نمونه</th><th>دما</th><th>رطوبت</th><th>نوع داده</th><th>دریافت سرور</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+<footer>ClimateLink · ESP32-WROOM-32UE · داده‌های شبیه‌سازی‌شده با برچسب مشخص می‌شوند.</footer></main></body></html>

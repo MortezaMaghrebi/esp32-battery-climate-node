@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="cl_background">#F6F7F2</color>
+    <color name="cl_surface">#FFFFFF</color>
+    <color name="cl_ink">#172D29</color>
+    <color name="cl_muted">#667872</color>
+    <color name="cl_primary">#205A49</color>
+    <color name="cl_mint">#DCECE2</color>
+    <color name="cl_outline">#E1E7DF</color>
+    <color name="cl_warm">#FBF0E5</color>
+    <color name="cl_orange">#AC632E</color>
+    <color name="cl_blue_bg">#EAF2F8</color>
+    <color name="cl_blue">#326B90</color>
+    <color name="cl_error">#B14537</color>
+    <color name="black">#172D29</color>
+    <color name="white">#FFFFFF</color>
 </resources>
