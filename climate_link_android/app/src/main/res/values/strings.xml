@@ -6,14 +6,14 @@
     <string name="overview">نمای کلی</string>
     <string name="devices">دستگاه‌ها</string>
     <string name="settings">تنظیمات</string>
-    <string name="welcome">آخرین وضعیت محیط شما</string>
+    <string name="welcome">دما و رطوبت · آخرین داده دریافتی</string>
     <string name="offline">متصل نیست</string>
     <string name="online">متصل</string>
     <string name="connecting">در حال اتصال</string>
     <string name="scanning">در حال جست‌وجو</string>
     <string name="hero_label">آماده برای راه‌اندازی</string>
-    <string name="hero_title">گره محیطی خود را متصل کنید</string>
-    <string name="hero_caption">دکمه برد را بزنید؛ سپس اتصال و تنظیمات را از همین‌جا شروع کنید.</string>
+    <string name="hero_title">دستگاه را متصل کنید</string>
+    <string name="hero_caption">برد را بیدار کنید؛ برای دریافت نمونه و تنظیم شبکه به آن متصل شوید.</string>
     <string name="hero_connected">اتصال دستگاه برقرار است</string>
     <string name="last_sample">آخرین نمونه</string>
     <string name="no_sample">هنوز نمونه‌ای دریافت نشده</string>
@@ -36,7 +36,7 @@
     <string name="dropped">نمونه ازدست‌رفته</string>
     <string name="devices_eyebrow">یک قدم تا اتصال</string>
     <string name="devices_title">اتصال به دستگاه</string>
-    <string name="devices_caption">۱. بیدار کردن برد   ۲. جست‌وجو   ۳. وارد کردن PIN</string>
+    <string name="devices_caption">برد را بیدار کنید، جست‌وجو کنید و PIN را وارد کنید.</string>
     <string name="wake_title">دکمه برد را فشار دهید</string>
     <string name="wake_caption">هنگام خواب، SW1 را بزنید یا برد را ریست کنید. دستگاه تا ۳ دقیقه برای اتصال در دسترس است.</string>
     <string name="scan">جست‌وجوی دستگاه‌ها</string>
@@ -50,8 +50,8 @@
     <string name="connect">اتصال</string>
     <string name="disconnect">قطع ارتباط</string>
     <string name="settings_eyebrow">متناسب با نیاز شما</string>
-    <string name="settings_title">تنظیمات گره</string>
-    <string name="settings_caption">شبکه، مقصد داده‌ها و ریتم اندازه‌گیری را انتخاب کنید.</string>
+    <string name="settings_title">پیکربندی دستگاه</string>
+    <string name="settings_caption">شبکه، مقصد داده‌ها و زمان‌بندی</string>
     <string name="settings_locked">برای خواندن و ذخیره تنظیمات، ابتدا به دستگاه متصل شوید.</string>
     <string name="settings_ready">تغییرات را ذخیره کنید و سپس چرخه را آغاز کنید.</string>
     <string name="wifi_title">شبکه Wi-Fi</string>
@@ -90,7 +90,7 @@
     <string name="run_message">تنظیمات ذخیره‌شده اجرا می‌شوند و دستگاه به خواب می‌رود. تغییرات فرم را ابتدا ذخیره کنید.</string>
     <string name="start">شروع چرخه</string>
     <string name="back">بازگشت</string>
-    <string name="status_initial">آماده اتصال به گره محیطی شما.</string>
+    <string name="status_initial">برای دیدن دستگاه‌های نزدیک، جست‌وجو را شروع کنید.</string>
     <string name="ready_message">اتصال امن برقرار شد.</string>
     <string name="config_loaded">تنظیمات خوانده شد. مقادیر سنسور در این نسخه آزمایشی هستند.</string>
     <string name="config_saved">تنظیمات ذخیره شد. برای اجرا، شروع چرخه و خواب را بزنید.</string>
@@ -126,4 +126,16 @@
     <string name="upload_every_error">تعداد نمونه باید بین ۱ تا ۳۲ باشد.</string>
     <string name="token_error">توکن حداکثر ۱۲۸ بایت است و نباید خط جدید داشته باشد.</string>
     <string name="url_length_error">طول آدرس حداکثر ۱۹۲ بایت است.</string>
+    <string name="overview_title">محیط شما</string>
+    <string name="unit_temperature">°C</string>
+    <string name="unit_humidity">% RH</string>
+    <string name="temperature_unknown">دما؛ هنوز نمونه‌ای دریافت نشده</string>
+    <string name="humidity_unknown">رطوبت؛ هنوز نمونه‌ای دریافت نشده</string>
+    <string name="measurement_accessibility">%1$s: %2$s %3$s</string>
+    <string name="cycle_title">چرخهٔ کم‌مصرف</string>
+    <string name="cycle_wake">بیداری</string>
+    <string name="cycle_sample">اندازه‌گیری</string>
+    <string name="cycle_send">ارسال</string>
+    <string name="cycle_sleep">خواب</string>
+    <string name="cycle_caption">ارسال طبق زمان‌بندی؛ سپس خواب تا نوبت بعدی اندازه‌گیری.</string>
 </resources>

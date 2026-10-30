@@ -1,0 +1,19 @@
+{
+  "screenshots": [
+    "taste-overview.png",
+    "taste-devices.png",
+    "taste-settings.png",
+    "taste-validation.png",
+    "taste-schedule.png",
+    "taste-compact.png",
+    "taste-large-text.png",
+    "taste-large-settings.png",
+    "taste-landscape.png",
+    "taste-tablet.png",
+    "taste-system-night.png"
+  ],
+  "interaction_checks": "passed",
+  "preferences_restored": true,
+  "landscape_verification": "Final landscape.png recaptured and visually checked at 1600x900; Android configuration land / ROTATION_90 verified.",
+  "checks": "Native Android smoke checks; not physical BLE integration."
+}

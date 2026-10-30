@@ -1,8 +1,6 @@
 package com.codestoon.climatelink;
 
 import android.Manifest;
-import android.animation.ValueAnimator;
-import android.provider.Settings;
 import android.graphics.Rect;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothDevice;
@@ -56,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state); EdgeToEdge.enable(this); setContentView(R.layout.activity_main);
         View root=findViewById(R.id.main);
+        WindowInsetsControllerCompat barsController=new WindowInsetsControllerCompat(getWindow(),root);
+        barsController.setAppearanceLightStatusBars(false);barsController.setAppearanceLightNavigationBars(false);
         boolean landscape=getResources().getConfiguration().orientation==android.content.res.Configuration.ORIENTATION_LANDSCAPE;
         if(landscape){findViewById(R.id.overview_intro).setVisibility(View.GONE);findViewById(R.id.brand_tagline).setVisibility(View.GONE);}
         if(getResources().getConfiguration().fontScale>1.3f){
@@ -64,6 +64,15 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
             int gutter=getResources().getDimensionPixelSize(R.dimen.page_gutter);
             position.setMarginStart(gutter);position.setMarginEnd(gutter);position.bottomMargin=dp(8);
             ((LinearLayout)root).addView(badge,1,position);findViewById(R.id.brand_tagline).setVisibility(View.GONE);
+        }
+        if(getResources().getConfiguration().fontScale>1.3f){
+            LinearLayout grid=findViewById(R.id.measurement_grid);grid.setOrientation(LinearLayout.VERTICAL);
+            for(int i=0;i<grid.getChildCount();i++){
+                View cell=grid.getChildAt(i);
+                LinearLayout.LayoutParams position=new LinearLayout.LayoutParams(-1,cell instanceof LinearLayout?-2:dp(1));
+                if(!(cell instanceof LinearLayout)){position.topMargin=dp(14);position.bottomMargin=dp(14);}
+                cell.setLayoutParams(position);
+            }
         }
         ViewCompat.setOnApplyWindowInsetsListener(root,(v,insets)->{
             Insets bars=insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -83,13 +92,13 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
         save=findViewById(R.id.save_button);run=findViewById(R.id.run_button);refresh=findViewById(R.id.refresh_button);
         scanButton=findViewById(R.id.scan_button);disconnectButton=findViewById(R.id.disconnect_button);goDevices=findViewById(R.id.go_devices);
         pages=findViewById(R.id.pages);navigation=findViewById(R.id.bottom_nav);
+        navigation.setItemActiveIndicatorEnabled(false);
         navigation.setOnItemSelectedListener(item->{
             int page=item.getItemId()==R.id.nav_devices?1:item.getItemId()==R.id.nav_settings?2:0;
             if(pages.getDisplayedChild()!=page) {
                 View oldPage=pages.getCurrentView();oldPage.animate().cancel();oldPage.setAlpha(1f);
                 pages.setDisplayedChild(page);
                 View child=pages.getCurrentView();child.animate().cancel();child.setAlpha(1f);
-                if(motionAllowed()){child.setAlpha(.35f);child.animate().alpha(1f).setDuration(160).start();}
             }
             return true;
         });
@@ -181,16 +190,16 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
         final MaterialButton button;final TextView signal;
         DeviceRow(BluetoothDevice device,String name){
             MaterialCardView card=new MaterialCardView(MainActivity.this);
-            card.setRadius(dp(20));card.setCardElevation(0);card.setStrokeWidth(dp(1));
+            card.setRadius(dp(20));card.setCardElevation(0);card.setStrokeWidth(0);
             card.setStrokeColor(ContextCompat.getColor(MainActivity.this,R.color.cl_outline));
             card.setCardBackgroundColor(ContextCompat.getColor(MainActivity.this,R.color.cl_surface));
-            LinearLayout.LayoutParams margins=new LinearLayout.LayoutParams(-1,-2);margins.bottomMargin=dp(12);devices.addView(card,margins);
+            LinearLayout.LayoutParams margins=new LinearLayout.LayoutParams(-1,-2);margins.bottomMargin=dp(14);devices.addView(card,margins);
             LinearLayout content=new LinearLayout(MainActivity.this);content.setOrientation(LinearLayout.VERTICAL);content.setPadding(dp(18),dp(16),dp(18),dp(16));card.addView(content);
             TextView title=new TextView(MainActivity.this);title.setText(name);title.setTextSize(17);title.setTextColor(ContextCompat.getColor(MainActivity.this,R.color.cl_ink));content.addView(title);
             signal=new TextView(MainActivity.this);signal.setTextSize(12);signal.setTextColor(ContextCompat.getColor(MainActivity.this,R.color.cl_muted));content.addView(signal);
-            TextView address=new TextView(MainActivity.this);address.setText(device.getAddress());address.setTextSize(11);address.setTextDirection(View.TEXT_DIRECTION_LTR);address.setGravity(Gravity.START);content.addView(address);
+            TextView address=new TextView(MainActivity.this);address.setText(device.getAddress());address.setTextSize(12);address.setTypeface(android.graphics.Typeface.MONOSPACE);address.setTextColor(ContextCompat.getColor(MainActivity.this,R.color.cl_muted));address.setTextDirection(View.TEXT_DIRECTION_LTR);address.setGravity(Gravity.START);content.addView(address);
             button=new MaterialButton(MainActivity.this,null,com.google.android.material.R.attr.materialButtonOutlinedStyle);
-            button.setText(R.string.connect);button.setIconResource(R.drawable.ic_bluetooth);button.setCornerRadius(dp(14));content.addView(button,new LinearLayout.LayoutParams(-1,dp(52)));
+            button.setText(R.string.connect);button.setIconResource(R.drawable.ic_bluetooth);button.setCornerRadius(dp(999));button.setMinHeight(dp(52));content.addView(button,new LinearLayout.LayoutParams(-1,-2));
             button.setOnClickListener(v->{
                 if(connected&&device.getAddress().equals(selectedAddress)){navigation.setSelectedItemId(R.id.nav_settings);return;}
                 selectedAddress=device.getAddress();deviceName.setText(name);ble.connect(device);connecting=true;updateConnectionUi();
@@ -252,9 +261,9 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
     private void loadDevice() {
         if(loading) return; loading=true; setConnected(true);
         ble.request(command("get_status"),r->{
-            hasSample=true;
-            temperature.setText(String.format(Locale.forLanguageTag("fa"),"%.1f",r.optDouble("temperature_c")));
-            humidity.setText(String.format(Locale.forLanguageTag("fa"),"%.1f",r.optDouble("humidity_pct")));
+            boolean hasTemperature=renderMeasurement(temperature,r.optDouble("temperature_c"),true);
+            boolean hasHumidity=renderMeasurement(humidity,r.optDouble("humidity_pct"),false);
+            hasSample=hasTemperature||hasHumidity;
             deviceIdentity.setText(r.optString("device_id")+"\n"+getString(R.string.firmware_label,r.optString("firmware")));
             heroCaption.setText(r.optString("device_id"));
             ((TextView)findViewById(R.id.queued_value)).setText(number(r.optInt("queued")));
@@ -264,7 +273,7 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
             boolean simulated=r.optBoolean("simulated",true);
             findViewById(R.id.simulation_badge).setVisibility(simulated?View.VISIBLE:View.GONE);
             String receivedAt=android.text.format.DateFormat.getTimeFormat(this).format(new Date());
-            sampleCaption.setText(getString(simulated?R.string.sample_simulated_at:R.string.sample_read_at,receivedAt));
+            sampleCaption.setText(hasSample?getString(simulated?R.string.sample_simulated_at:R.string.sample_read_at,receivedAt):getString(R.string.no_sample));
         });
         ble.request(command("get_config"),r->{
             ssid.setText(r.optString("ssid")); url.setText(r.optString("server_url"));
@@ -277,6 +286,16 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
             clearPassword.setChecked(false); clearToken.setChecked(false);
             loading=false; configured=true; markSaved(); clearFormErrors(); setConnected(true); status(getString(R.string.config_loaded));
         });
+    }
+    private boolean renderMeasurement(TextView view,double reading,boolean lead){
+        boolean available=!Double.isNaN(reading)&&!Double.isInfinite(reading);
+        view.setText(available?String.format(Locale.forLanguageTag("fa"),"%.1f",reading):getString(R.string.empty_value));
+        view.setTextSize(available?(lead?40:30):22);
+        view.setTextColor(ContextCompat.getColor(this,available?(lead?R.color.cl_accent:R.color.cl_ink):R.color.cl_muted));
+        view.setContentDescription(available?getString(R.string.measurement_accessibility,
+            getString(lead?R.string.temperature:R.string.humidity),view.getText(),getString(lead?R.string.celsius:R.string.percent)):
+            getString(lead?R.string.temperature_unknown:R.string.humidity_unknown));
+        return available;
     }
     private static String value(EditText e) { return e.getText().toString(); }
     private void saveConfig(){
@@ -309,10 +328,7 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
     }
     private void markSaved(){savedFingerprint=formFingerprint();}
     private boolean isDirty(){return configured&&!savedFingerprint.equals(formFingerprint());}
-    private boolean motionAllowed(){
-        if(Build.VERSION.SDK_INT>=26)return ValueAnimator.areAnimatorsEnabled();
-        return Settings.Global.getFloat(getContentResolver(),Settings.Global.ANIMATOR_DURATION_SCALE,1f)>0;
-    }
+
     private void disclosure(int toggleId,int contentId){
         MaterialButton toggle=findViewById(toggleId);View content=findViewById(contentId);
         ViewCompat.setStateDescription(toggle,getString(R.string.collapsed));

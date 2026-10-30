@@ -1,44 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:id="@+id/devices_page" android:layout_width="match_parent" android:layout_height="match_parent" android:fillViewport="true" android:clipToPadding="false" android:scrollbars="none">
-    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingStart="@dimen/page_gutter" android:paddingEnd="@dimen/page_gutter" android:paddingTop="12dp" android:paddingBottom="28dp">
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/devices_eyebrow" android:textSize="12sp" android:textColor="@color/cl_muted" android:fontFamily="@font/vazirmatn" android:gravity="start" />
-        <Space android:layout_width="1dp" android:layout_height="2dp" />
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/devices_title" android:textSize="26sp" android:textColor="@color/cl_ink" android:fontFamily="@font/vazirmatn" android:gravity="start" />
-        <Space android:layout_width="1dp" android:layout_height="6dp" />
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/devices_caption" android:textSize="14sp" android:textColor="@color/cl_muted" android:fontFamily="@font/vazirmatn" android:gravity="start" />
-        <Space android:layout_width="1dp" android:layout_height="22dp" />
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:background="@drawable/bg_surface" android:padding="20dp">
-            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:baselineAligned="false">
-                <ImageView android:layout_width="30dp" android:layout_height="30dp" android:src="@drawable/ic_devices" app:tint="@color/cl_primary" android:importantForAccessibility="no" android:layout_marginEnd="14dp" />
-                <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:orientation="vertical" android:layout_weight="1">
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/wake_title" android:textSize="16sp" android:textColor="@color/cl_ink" android:fontFamily="@font/vazirmatn" android:gravity="start" />
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/wake_caption" android:textSize="12sp" android:textColor="@color/cl_muted" android:fontFamily="@font/vazirmatn" android:gravity="start" />
-                </LinearLayout>
-            </LinearLayout>
-            <Space android:layout_width="1dp" android:layout_height="18dp" />
-            <com.google.android.material.button.MaterialButton android:id="@+id/scan_button" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="54dp" android:text="@string/scan" android:textSize="14sp" android:fontFamily="@font/vazirmatn_semibold" android:textAllCaps="false" app:cornerRadius="16dp" app:icon="@drawable/ic_search" app:iconGravity="textStart" />
-            <Space android:layout_width="1dp" android:layout_height="12dp" />
-            <com.google.android.material.progressindicator.LinearProgressIndicator android:id="@+id/scan_progress" android:layout_width="match_parent" android:layout_height="4dp" android:indeterminate="true" android:visibility="gone" app:trackCornerRadius="4dp" />
-            <Space android:layout_width="1dp" android:layout_height="12dp" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/status_initial" android:textSize="12sp" android:textColor="@color/cl_muted" android:fontFamily="@font/vazirmatn" android:gravity="start" android:id="@+id/connection" />
-        </LinearLayout>
-        <Space android:layout_width="1dp" android:layout_height="24dp" />
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:baselineAligned="false">
-            <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="@string/nearby" android:textSize="17sp" android:textColor="@color/cl_ink" android:fontFamily="@font/vazirmatn" android:gravity="start" />
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/empty_value" android:textSize="12sp" android:textColor="@color/cl_muted" android:fontFamily="@font/vazirmatn" android:gravity="start" android:id="@+id/device_count" />
-        </LinearLayout>
-        <Space android:layout_width="1dp" android:layout_height="12dp" />
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/empty_devices" android:padding="30dp" android:background="@drawable/bg_surface">
-            <ImageView android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_bluetooth" app:tint="@color/cl_muted" android:importantForAccessibility="no" android:layout_gravity="center_horizontal" />
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:id="@+id/devices_page" android:fillViewport="true" android:clipToPadding="false" android:scrollbars="none">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingStart="@dimen/page_gutter" android:paddingEnd="@dimen/page_gutter" android:paddingTop="8dp" android:paddingBottom="28dp">
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/devices_title" android:textSize="24sp" android:textColor="@color/cl_ink" android:fontFamily="@font/vazirmatn_semibold" android:accessibilityHeading="true" android:gravity="start" android:includeFontPadding="false" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/devices_caption" android:textSize="14sp" android:textColor="@color/cl_muted" android:layout_marginTop="4dp" android:gravity="start" android:includeFontPadding="false" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp" android:background="@drawable/bg_surface" android:layout_marginTop="20dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/wake_title" android:textSize="16sp" android:textColor="@color/cl_ink" android:fontFamily="@font/vazirmatn_semibold" android:gravity="start" android:includeFontPadding="false" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/wake_caption" android:textSize="14sp" android:textColor="@color/cl_muted" android:layout_marginTop="6dp" android:gravity="start" android:includeFontPadding="false" />
             <Space android:layout_width="1dp" android:layout_height="14dp" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/none_found" android:textSize="16sp" android:textColor="@color/cl_ink" android:fontFamily="@font/vazirmatn" android:gravity="center_horizontal" android:textAlignment="center" />
-            <Space android:layout_width="1dp" android:layout_height="6dp" />
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scan_hint" android:textSize="12sp" android:textColor="@color/cl_muted" android:fontFamily="@font/vazirmatn" android:gravity="center_horizontal" android:textAlignment="center" />
+            <com.google.android.material.button.MaterialButton android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/scan_button" android:text="@string/scan" style="@style/Widget.ClimateLink.Button" app:icon="@drawable/ic_search" app:iconGravity="textStart" />
+            <com.google.android.material.progressindicator.LinearProgressIndicator android:layout_width="match_parent" android:layout_height="3dp" android:id="@+id/scan_progress" android:indeterminate="true" android:visibility="gone" android:layout_marginTop="14dp" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/status_initial" android:textSize="12sp" android:textColor="@color/cl_muted" android:id="@+id/connection" android:layout_marginTop="12dp" android:gravity="start" android:includeFontPadding="false" />
         </LinearLayout>
-        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/device_list" />
-        <Space android:layout_width="1dp" android:layout_height="20dp" />
-        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/pair_hint" android:textSize="12sp" android:textColor="@color/cl_muted" android:fontFamily="@font/vazirmatn" android:gravity="start" />
-        <Space android:layout_width="1dp" android:layout_height="12dp" />
-        <com.google.android.material.button.MaterialButton style="@style/Widget.Material3.Button.OutlinedButton" android:id="@+id/disconnect_button" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="54dp" android:text="@string/disconnect" android:textSize="14sp" android:fontFamily="@font/vazirmatn_semibold" android:textAllCaps="false" app:cornerRadius="16dp" android:visibility="gone" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:baselineAligned="false" android:layout_marginTop="24dp" android:gravity="center_vertical">
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:text="@string/nearby" android:textSize="16sp" android:textColor="@color/cl_ink" android:layout_weight="1" android:accessibilityHeading="true" android:gravity="start" android:includeFontPadding="false" />
+            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/empty_value" android:textSize="12sp" android:textColor="@color/cl_muted" android:id="@+id/device_count" android:gravity="start" android:includeFontPadding="false" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp" android:background="@drawable/bg_surface" android:id="@+id/empty_devices" android:layout_marginTop="14dp">
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/none_found" android:textSize="14sp" android:textColor="@color/cl_ink" android:gravity="start" android:includeFontPadding="false" />
+            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/scan_hint" android:textSize="12sp" android:textColor="@color/cl_muted" android:layout_marginTop="6dp" android:gravity="start" android:includeFontPadding="false" />
+        </LinearLayout>
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:id="@+id/device_list" android:layout_marginTop="14dp" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/pair_hint" android:textSize="12sp" android:textColor="@color/cl_muted" android:layout_marginTop="14dp" android:gravity="start" android:includeFontPadding="false" />
+        <com.google.android.material.button.MaterialButton android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/disconnect_button" android:text="@string/disconnect" style="@style/Widget.ClimateLink.Button.Outlined" android:visibility="gone" android:layout_marginTop="14dp" />
     </LinearLayout>
 </ScrollView>

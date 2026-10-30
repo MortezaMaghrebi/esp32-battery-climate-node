@@ -1,0 +1,9 @@
+cl_ink / cl_surface: 17.32:1
+cl_muted / cl_surface: 9.11:1
+cl_faint / cl_raised: 4.73:1
+cl_accent / cl_surface: 10.26:1
+cl_accent / cl_warm: 8.34:1
+cl_muted / cl_raised: 6.92:1
+cl_on_primary / cl_primary: 19.26:1
+Field boundary: 4.22:1
+Persian tabular digit advances after tnum: [1349, 1349, 1349, 1349, 1349, 1349, 1349, 1349, 1349, 1349]
