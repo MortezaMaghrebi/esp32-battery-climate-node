@@ -1,3 +1,20 @@
+# Current Android direction — light glass
+
+The approved light glass design supersedes the historical direction below.
+
+- Icy blue wave backdrop, translucent white surfaces, white rims and cyan accents.
+- Compact decorative temperature bezel (170dp container); no quantitative scale is implied.
+- Floating rounded navigation dock with a cyan selected indicator and Persian labels.
+- Native Canvas sensor illustration on discovery; illustration is not a representation of the actual PCB or casing.
+- Glass uses alpha gradients, not real-time backdrop blur.
+- Disconnected readings remain unavailable; simulated measurements are labeled.
+
+Validation: debug APK, lintDebug and existing unit tests passed. All three screens inspected in the Android emulator. Screenshots: docs/screenshots/glass. Physical BLE hardware was not tested for this visual change.
+
+---
+
+## Historical design notes (superseded)
+
 # ClimateLink Android design system
 
 Updated 2026-10-30 for the requested luxurious, futuristic redesign using [Taste](https://github.com/Leonxlnx/taste-skill), installed as `design-taste-frontend`. The app-screen route in `references/app-screens.md` was read and used; the marketing-page route does not apply to this native app. Previous UI/UX Pro Max interaction improvements are retained.

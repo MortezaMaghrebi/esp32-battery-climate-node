@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
         super.onCreate(state); EdgeToEdge.enable(this); setContentView(R.layout.activity_main);
         View root=findViewById(R.id.main);
         WindowInsetsControllerCompat barsController=new WindowInsetsControllerCompat(getWindow(),root);
-        barsController.setAppearanceLightStatusBars(false);barsController.setAppearanceLightNavigationBars(false);
+        barsController.setAppearanceLightStatusBars(true);barsController.setAppearanceLightNavigationBars(true);
         boolean landscape=getResources().getConfiguration().orientation==android.content.res.Configuration.ORIENTATION_LANDSCAPE;
         if(landscape){findViewById(R.id.overview_intro).setVisibility(View.GONE);findViewById(R.id.brand_tagline).setVisibility(View.GONE);}
         if(getResources().getConfiguration().fontScale>1.3f){
@@ -93,6 +93,8 @@ public class MainActivity extends AppCompatActivity implements BleClient.Listene
         scanButton=findViewById(R.id.scan_button);disconnectButton=findViewById(R.id.disconnect_button);goDevices=findViewById(R.id.go_devices);
         pages=findViewById(R.id.pages);navigation=findViewById(R.id.bottom_nav);
         navigation.setItemActiveIndicatorEnabled(false);
+        navigation.setItemPaddingTop(10);
+        navigation.setItemPaddingBottom(10);
         navigation.setOnItemSelectedListener(item->{
             int page=item.getItemId()==R.id.nav_devices?1:item.getItemId()==R.id.nav_settings?2:0;
             if(pages.getDisplayedChild()!=page) {
